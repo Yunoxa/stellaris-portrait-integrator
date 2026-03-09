@@ -1,0 +1,2 @@
+# Stellaris Portrait Integrator
+The purpose of this tool is to enable the creation of large or advanced 2D portrait mods for Stellaris without the mess, hassle and time investment of manually writing tons of text into files for each portrait you wish to add. You should be able to organise your images into a particular folder structure, run the script, and have your mod ready to use. Currently WIP.
