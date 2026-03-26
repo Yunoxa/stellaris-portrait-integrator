@@ -17,7 +17,7 @@ path.models = `${path.root}gfx/models/portraits/`
 
 // Get portrait category directories
 const modelDirFiles = fs.readdirSync(path.models, { withFileTypes: true });
-const modelDirs = modelDirFiles.filter(file => file.isDirectory);
+const modelDirs = modelDirFiles.filter(file => file.isDirectory());
 
 // Find portrait groups and their content
 const portraitGroups = [];
