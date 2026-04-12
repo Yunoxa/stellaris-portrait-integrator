@@ -52,11 +52,11 @@ portraitGroups.forEach((group) => {
   group.content += "}"
   fs.writeFile(filePath, group.content, (err) => {
     if (err) throw err;
-    console.log(`File written successfully: ${filePath}`);
+    console.log(`File created successfully: ${filePath}`);
   });
 });
 
-// Write portrait groups in portrait group files after portrait imports
+// Write game_setup in portrait group files after portrait imports
 portraitGroups.forEach((group) => {
   const filePath = `${path.root}gfx/portraits/portraits/${group.name}.txt`;
   group.content += `\n
@@ -71,9 +71,80 @@ portrait_groups = {
     group.content += `                    ${portrait.name}\n`;
   });
 
-  group.content += "}"
+  group.content += `                }
+            }
+        }
+  `
   fs.writeFile(filePath, group.content, (err) => {
     if (err) throw err;
-    console.log(`File written successfully: ${filePath}`);
+    console.log(`game_setup written successfully: ${filePath}`);
+  });
+});
+
+// Write pop in portrait group files
+portraitGroups.forEach((group) => {
+  const filePath = `${path.root}gfx/portraits/portraits/${group.name}.txt`;
+  group.content += `
+        pop = {
+            add = {
+                portraits = {\n`
+
+  group.portraits.forEach((portrait, index) => {
+    group.content += `                    ${portrait.name}\n`;
+  });
+
+  group.content += `                }
+            }
+        }
+  `
+  fs.writeFile(filePath, group.content, (err) => {
+    if (err) throw err;
+    console.log(`pop written successfully: ${filePath}`);
+  });
+});
+
+// Write leader in portrait group files
+portraitGroups.forEach((group) => {
+  const filePath = `${path.root}gfx/portraits/portraits/${group.name}.txt`;
+  group.content += `
+        leader = {
+            add = {
+                portraits = {\n`
+
+  group.portraits.forEach((portrait, index) => {
+    group.content += `                    ${portrait.name}\n`;
+  });
+
+  group.content += `                }
+            }
+        }
+  `
+  fs.writeFile(filePath, group.content, (err) => {
+    if (err) throw err;
+    console.log(`leader written successfully: ${filePath}`);
+  });
+});
+
+// Write leader in portrait group files
+portraitGroups.forEach((group) => {
+  const filePath = `${path.root}gfx/portraits/portraits/${group.name}.txt`;
+  group.content += `
+        ruler = {
+            add = {
+                portraits = {\n`
+
+  group.portraits.forEach((portrait, index) => {
+    group.content += `                    ${portrait.name}\n`;
+  });
+
+  group.content += `                }
+            }
+        }
+    }
+}
+  `
+  fs.writeFile(filePath, group.content, (err) => {
+    if (err) throw err;
+    console.log(`ruler written successfully: ${filePath}`);
   });
 });
