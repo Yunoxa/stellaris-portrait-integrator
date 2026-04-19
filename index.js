@@ -76,10 +76,10 @@ portraitGroups.forEach((group) => {
   group.has_leader = true; // Include portraits in leaders.
   group.has_ruler = true; // Include portraits in rulers.
   group.has_default = true; // Include default portrait.
-  group.game_setup_conditions = {};
-  group.species_conditions = {};
-  group.pop_conditions = {};
-  group.leader_conditions = {};
+  group.game_setup_conditions = [];
+  group.species_conditions = [];
+  group.pop_conditions = [];
+  group.leader_conditions = [];
 
   Object.assign(group, group.options);
 
@@ -121,8 +121,7 @@ portraitGroups.forEach((group) => {
 
     group.content += `                }
             }
-        }
-    `
+        }\n`
     fs.writeFile(filePath, group.content, (err) => {
       if (err) throw err;
       console.log(`game_setup written successfully: ${filePath}`);
@@ -134,10 +133,17 @@ portraitGroups.forEach((group) => {
 portraitGroups.forEach((group) => {
   if (group.has_species) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += `
-        species = {
-            add = {
-                portraits = {\n`
+    group.content += "\n        species = {"
+    group.content += "\n              add = {"
+    // Add triggers if specified
+    if (group.species_conditions.length > 0) {
+      group.content += "\n                  trigger = {"
+      group.species_conditions.forEach((condition) => {
+        group.content += `\n                      ${condition}`
+      });
+      group.content += "\n                  }"
+    }
+    group.content += "\n                  portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
       group.content += `                    ${portrait.name}\n`;
@@ -145,8 +151,7 @@ portraitGroups.forEach((group) => {
 
     group.content += `                }
             }
-        }
-    `
+        }\n`
     fs.writeFile(filePath, group.content, (err) => {
       if (err) throw err;
       console.log(`pop written successfully: ${filePath}`);
@@ -158,10 +163,17 @@ portraitGroups.forEach((group) => {
 portraitGroups.forEach((group) => {
   if (group.has_pop) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += `
-        pop = {
-            add = {
-                portraits = {\n`
+    group.content += "\n        pop = {"
+    group.content += "\n              add = {"
+    // Add triggers if specified
+    if (group.species_conditions.length > 0) {
+      group.content += "\n                  trigger = {"
+      group.pop_conditions.forEach((condition) => {
+        group.content += `\n                      ${condition}`
+      });
+      group.content += "\n                  }"
+    }
+    group.content += "\n                  portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
       group.content += `                    ${portrait.name}\n`;
@@ -169,8 +181,7 @@ portraitGroups.forEach((group) => {
 
     group.content += `                }
             }
-        }
-    `
+        }\n`
     fs.writeFile(filePath, group.content, (err) => {
       if (err) throw err;
       console.log(`pop written successfully: ${filePath}`);
@@ -182,10 +193,17 @@ portraitGroups.forEach((group) => {
 portraitGroups.forEach((group) => {
   if (group.has_leader) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += `
-        leader = {
-            add = {
-                portraits = {\n`
+    group.content += "\n        leader = {"
+    group.content += "\n              add = {"
+    // Add triggers if specified
+    if (group.species_conditions.length > 0) {
+      group.content += "\n                  trigger = {"
+      group.pop_conditions.forEach((condition) => {
+        group.content += `\n                      ${condition}`
+      });
+      group.content += "\n                  }"
+    }
+    group.content += "\n                  portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
       group.content += `                    ${portrait.name}\n`;
@@ -193,8 +211,7 @@ portraitGroups.forEach((group) => {
 
     group.content += `                }
             }
-        }
-    `
+        }\n`
     fs.writeFile(filePath, group.content, (err) => {
       if (err) throw err;
       console.log(`leader written successfully: ${filePath}`);
@@ -206,10 +223,17 @@ portraitGroups.forEach((group) => {
 portraitGroups.forEach((group) => {
   if (group.has_ruler) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += `
-        ruler = {
-            add = {
-                portraits = {\n`
+    group.content += "\n        ruler = {"
+    group.content += "\n              add = {"
+    // Add triggers if specified
+    if (group.species_conditions.length > 0) {
+      group.content += "\n                  trigger = {"
+      group.pop_conditions.forEach((condition) => {
+        group.content += `\n                      ${condition}`
+      });
+      group.content += "\n                  }"
+    }
+    group.content += "\n                  portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
       group.content += `                    ${portrait.name}\n`;
@@ -217,12 +241,22 @@ portraitGroups.forEach((group) => {
 
     group.content += `                }
             }
-        }
-    }
-}`
+        }\n`
+
     fs.writeFile(filePath, group.content, (err) => {
       if (err) throw err;
       console.log(`ruler written successfully: ${filePath}`);
     });
   }
+});
+
+// Write end of file syntax
+portraitGroups.forEach((group) => {
+  const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
+  group.content += "    }\n"
+  group.content += "}"
+  fs.writeFile(filePath, group.content, (err) => {
+    if (err) throw err;
+    console.log(`end written successfully: ${filePath}`);
+  });
 });
