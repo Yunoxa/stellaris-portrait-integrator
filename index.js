@@ -5,6 +5,7 @@ import { stdin as input, stdout as output} from 'node:process';
 import definePortraitGroup from "./portraits/define_portrait_group.js";
 import definePortrait from "./portraits/define_portrait.js";
 import searchFolders from "./utils/searchFolders.js";
+import makeConditionExclusive from "./utils/makeConditionExclusive.js";
 
 const pathObj = {};
 
@@ -66,9 +67,9 @@ modelDirs.forEach((modelDir) => {
   });
 });
 
-// Create portrait group files and write portrait imports
+// Initiate portrait group values
 portraitGroups.forEach((group) => {
-  group.name = group.name; // Name that file and portrait names are based upon
+  group.name = group.name; // Name that file and portrait names are based upon.
   group.group_name = group.name; // Group name portraits are assigned to.
   group.has_game_setup = true; // Include portraits in game setup.
   group.has_species = true; // Include portraits in species.
@@ -81,10 +82,47 @@ portraitGroups.forEach((group) => {
   group.pop_conditions = [];
   group.leader_conditions = [];
   group.ruler_conditions = [];
+});
 
+// Create portrait group files and write portrait imports
+portraitGroups.forEach((group) => {
   Object.assign(group, group.options);
+  // If exclusive trigger exists, make sure all other groups in portrait group don't have it.
+  portraitGroups.forEach((otherGroup) => {
+    makeConditionExclusive(
+      group,
+      otherGroup,
+      group.game_setup_conditions,
+      otherGroup.game_setup_conditions
+    );
+    makeConditionExclusive(
+      group,
+      otherGroup,
+      group.species_conditions,
+      otherGroup.species_conditions
+    );
+    makeConditionExclusive(
+      group,
+      otherGroup,
+      group.pop_conditions,
+      otherGroup.pop_conditions
+    );
+    makeConditionExclusive(
+      group,
+      otherGroup,
+      group.leader_conditions,
+      otherGroup.leader_conditions
+    );
+    makeConditionExclusive(
+      group,
+      otherGroup,
+      group.ruler_conditions,
+      otherGroup.ruler_conditions
+    );
+  });
 
-  console.log(group)
+
+  console.log(group);
 
   const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
   group.content = "portraits = {\n";
@@ -107,7 +145,7 @@ portraitGroups.forEach((group) => {
   group.content += "portrait_groups = {\n"
   group.content += `    ${group.group_name} = {`
   if (group.has_default) {
-    group.content += `        default = ${group.portraits[0].name}\n`
+    group.content += `\n       default = ${group.portraits[0].name}`
   }
 
   if (group.has_game_setup) {
@@ -118,7 +156,7 @@ portraitGroups.forEach((group) => {
     if (group.game_setup_conditions.length > 0) {
       group.content += "                trigger = {"
       group.game_setup_conditions.forEach((condition) => {
-        group.content += `\n                    ${condition}`
+        group.content += `\n                    ${condition.trigger}`
       });
       group.content += "\n                }\n"
     }
@@ -148,7 +186,7 @@ portraitGroups.forEach((group) => {
     if (group.species_conditions.length > 0) {
       group.content += "\n                  trigger = {"
       group.species_conditions.forEach((condition) => {
-        group.content += `\n                      ${condition}`
+        group.content += `\n                      ${condition.trigger}`
       });
       group.content += "\n                  }"
     }
@@ -178,7 +216,7 @@ portraitGroups.forEach((group) => {
     if (group.pop_conditions.length > 0) {
       group.content += "\n                  trigger = {"
       group.pop_conditions.forEach((condition) => {
-        group.content += `\n                      ${condition}`
+        group.content += `\n                      ${condition.trigger}`
       });
       group.content += "\n                  }"
     }
@@ -208,7 +246,7 @@ portraitGroups.forEach((group) => {
     if (group.leader_conditions.length > 0) {
       group.content += "\n                  trigger = {"
       group.leader_conditions.forEach((condition) => {
-        group.content += `\n                      ${condition}`
+        group.content += `\n                      ${condition.trigger}`
       });
       group.content += "\n                  }"
     }
@@ -238,7 +276,7 @@ portraitGroups.forEach((group) => {
     if (group.ruler_conditions.length > 0) {
       group.content += "\n                  trigger = {"
       group.ruler_conditions.forEach((condition) => {
-        group.content += `\n                      ${condition}`
+        group.content += `\n                      ${condition.trigger}`
       });
       group.content += "\n                  }"
     }
