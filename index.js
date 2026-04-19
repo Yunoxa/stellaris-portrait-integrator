@@ -28,17 +28,39 @@ modelDirs.forEach((modelDir) => {
   for (const folder of searchFolders(`${modelDir.parentPath}/${modelDir.name}`, modelDir.name)) {
     portraitGroupDirs.push(folder);
   }
-  // Get dds files in portrait group directory.
+  // Get dds files and options in portrait group directory.
   portraitGroupDirs.forEach((groupDir) => {
-    const portraitGroupContent = fs.readdirSync(`${groupDir.path}`, { withFileTypes: true });
+    const portraitGroupContent = fs.readdirSync(`${groupDir.path}`, {
+      withFileTypes: true
+    }).map(dirent => {
+      const fullPath = path.join(groupDir.path, dirent.name);
+      dirent.relativePath = path.relative(pathObj.root, fullPath);
+      return dirent
+    });
+
     const portraitGroupImages = portraitGroupContent.filter(file => path.extname(file.name) == ".dds");
+
     if (portraitGroupImages.length > 0) {
       const portraits = [];
       portraitGroupImages.forEach((portrait) => {
         portraits.push(definePortrait(portrait));
       });
 
+      // Check for options json in group folder, get the data from it.
       const portraitGroup = definePortraitGroup(portraits, `${groupDir.parent}_${groupDir.name}`);
+      const portraitGroupOptionsFile = portraitGroupContent.find(file => file.name === "config.json");
+      if (portraitGroupOptionsFile) {
+        const optionsPath = `${portraitGroupOptionsFile.parentPath}/${portraitGroupOptionsFile.name}`;
+        const optionsJSON = fs.readFileSync(optionsPath, 'utf8');
+        try {
+          portraitGroup.options = JSON.parse(optionsJSON);
+        } catch (error) {
+          console.log("Error reading (likely invalid) json file: " + optionsPath);
+        }
+      } else {
+        portraitGroup.options = {}
+      }
+
       portraitGroups.push(portraitGroup);
     }
   });
@@ -46,25 +68,29 @@ modelDirs.forEach((modelDir) => {
 
 // Create portrait group files and write portrait imports
 portraitGroups.forEach((group) => {
-  group.settings = {
-    name: group.name,
-    game_setup: true,
-    species: true,
-    pop: true,
-    leader: true,
-    ruler: true,
-    game_setup_conditions: {},
-    species_conditions: {},
-    pop_species_traits: {},
-    leader_traits: {},
-    leader_species_traits: {}
-  }
+  group.name = group.name; // Name that file and portrait names are based upon
+  group.group_name = group.name; // Group name portraits are assigned to.
+  group.has_game_setup = true; // Include portraits in game setup.
+  group.has_species = true; // Include portraits in species.
+  group.has_pop = true; // Include portraits in pops.
+  group.has_leader = true; // Include portraits in leaders.
+  group.has_ruler = true; // Include portraits in rulers.
+  group.has_default = true; // Include default portrait.
+  group.game_setup_conditions = {};
+  group.species_conditions = {};
+  group.pop_conditions = {};
+  group.leader_conditions = {};
+
+  Object.assign(group, group.options);
+
+  console.log(group)
+
   const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
   group.content = "portraits = {\n";
 
   group.portraits.forEach((portrait, index) => {
     portrait.name = `${group.name}_${index}`;
-    group.content += `    ${portrait.name} = { texturefile = "${portrait.dir.parentPath}/${portrait.dir.name}" }\n`;
+    group.content += `    ${portrait.name} = { texturefile = "${portrait.dir.relativePath}" }\n`;
   });
 
   group.content += "}"
@@ -76,15 +102,17 @@ portraitGroups.forEach((group) => {
 
 // Write game_setup in portrait group files after portrait imports
 portraitGroups.forEach((group) => {
-  if (group.settings.game_setup) {
+  if (group.has_game_setup) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += `\n
-portrait_groups = {
-    ${group.name} = {
-        default = ${group.portraits[0].name}
-        game_setup = {
-            add = {
-                portraits = {\n`
+    group.content += "\n"
+    group.content += "portrait_groups = {\n"
+    group.content += `    ${group.group_name} = {\n`
+    if (group.has_default) {
+      group.content += `        default = ${group.portraits[0].name}\n`
+    }
+    group.content += "        game_setup = {\n"
+    group.content += "            add = {\n"
+    group.content += "                portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
       group.content += `                    ${portrait.name}\n`;
@@ -103,7 +131,7 @@ portrait_groups = {
 
 // Write species in portrait group files
 portraitGroups.forEach((group) => {
-  if (group.settings.species) {
+  if (group.has_species) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
     group.content += `
         species = {
@@ -127,7 +155,7 @@ portraitGroups.forEach((group) => {
 
 // Write pop in portrait group files
 portraitGroups.forEach((group) => {
-  if (group.settings.pop) {
+  if (group.has_pop) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
     group.content += `
         pop = {
@@ -151,7 +179,7 @@ portraitGroups.forEach((group) => {
 
 // Write leader in portrait group files
 portraitGroups.forEach((group) => {
-  if (group.settings.leader) {
+  if (group.has_leader) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
     group.content += `
         leader = {
@@ -175,7 +203,7 @@ portraitGroups.forEach((group) => {
 
 // Write ruler in portrait group files
 portraitGroups.forEach((group) => {
-  if (group.settings.ruler) {
+  if (group.has_ruler) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
     group.content += `
         ruler = {
