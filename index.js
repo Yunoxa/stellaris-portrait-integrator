@@ -80,6 +80,7 @@ portraitGroups.forEach((group) => {
   group.species_conditions = [];
   group.pop_conditions = [];
   group.leader_conditions = [];
+  group.ruler_conditions = [];
 
   Object.assign(group, group.options);
 
@@ -113,6 +114,14 @@ portraitGroups.forEach((group) => {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
     group.content += "\n       game_setup = {\n"
     group.content += "            add = {\n"
+    // Add triggers if specified
+    if (group.game_setup_conditions.length > 0) {
+      group.content += "                trigger = {"
+      group.game_setup_conditions.forEach((condition) => {
+        group.content += `\n                    ${condition}`
+      });
+      group.content += "\n                }\n"
+    }
     group.content += "                portraits = {\n"
 
     group.portraits.forEach((portrait, index) => {
@@ -166,7 +175,7 @@ portraitGroups.forEach((group) => {
     group.content += "\n        pop = {"
     group.content += "\n              add = {"
     // Add triggers if specified
-    if (group.species_conditions.length > 0) {
+    if (group.pop_conditions.length > 0) {
       group.content += "\n                  trigger = {"
       group.pop_conditions.forEach((condition) => {
         group.content += `\n                      ${condition}`
@@ -196,9 +205,9 @@ portraitGroups.forEach((group) => {
     group.content += "\n        leader = {"
     group.content += "\n              add = {"
     // Add triggers if specified
-    if (group.species_conditions.length > 0) {
+    if (group.leader_conditions.length > 0) {
       group.content += "\n                  trigger = {"
-      group.pop_conditions.forEach((condition) => {
+      group.leader_conditions.forEach((condition) => {
         group.content += `\n                      ${condition}`
       });
       group.content += "\n                  }"
@@ -226,9 +235,9 @@ portraitGroups.forEach((group) => {
     group.content += "\n        ruler = {"
     group.content += "\n              add = {"
     // Add triggers if specified
-    if (group.species_conditions.length > 0) {
+    if (group.ruler_conditions.length > 0) {
       group.content += "\n                  trigger = {"
-      group.pop_conditions.forEach((condition) => {
+      group.ruler_conditions.forEach((condition) => {
         group.content += `\n                      ${condition}`
       });
       group.content += "\n                  }"
