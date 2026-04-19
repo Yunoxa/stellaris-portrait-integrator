@@ -93,7 +93,7 @@ portraitGroups.forEach((group) => {
     group.content += `    ${portrait.name} = { texturefile = "${portrait.dir.relativePath}" }\n`;
   });
 
-  group.content += "}"
+  group.content += "}\n"
   fs.writeFile(filePath, group.content, (err) => {
     if (err) throw err;
     console.log(`File created successfully: ${filePath}`);
@@ -102,15 +102,16 @@ portraitGroups.forEach((group) => {
 
 // Write game_setup in portrait group files after portrait imports
 portraitGroups.forEach((group) => {
+  group.content += "\n"
+  group.content += "portrait_groups = {\n"
+  group.content += `    ${group.group_name} = {`
+  if (group.has_default) {
+    group.content += `        default = ${group.portraits[0].name}\n`
+  }
+
   if (group.has_game_setup) {
     const filePath = `${pathObj.root}gfx/portraits/portraits/${group.name}.txt`;
-    group.content += "\n"
-    group.content += "portrait_groups = {\n"
-    group.content += `    ${group.group_name} = {\n`
-    if (group.has_default) {
-      group.content += `        default = ${group.portraits[0].name}\n`
-    }
-    group.content += "        game_setup = {\n"
+    group.content += "\n       game_setup = {\n"
     group.content += "            add = {\n"
     group.content += "                portraits = {\n"
 
