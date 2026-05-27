@@ -10,12 +10,12 @@ export default function makeConditionExclusive(
         otherGroup.name != group.name &&
         otherGroup.group_name === group.group_name
       ) {
-        otherConditions.forEach((otherCondition) => {
-          console.log(otherCondition, condition)
-          if (otherCondition === condition) {
+        for(let i = 0; i < otherConditions.length; i++) {
+          console.log(otherConditions[i].trigger.includes(condition.trigger))
+          if (otherConditions[i].trigger.includes(condition.trigger)) {
             return;
           };
-        });
+        }
         otherConditions.push({
           trigger: `NOT = { ${condition.trigger} }`,
           exclusive: false
